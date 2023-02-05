@@ -2,8 +2,8 @@ const MONGOOSE = require('mongoose');
 
 MONGOOSE.Promise = global.Promise;
 
-module.exports = (config) => {
-    MONGOOSE.connect(config.connectionString,
+module.exports = () => {
+    MONGOOSE.connect(process.env.connectionString,
         { useNewUrlParser: true, useUnifiedTopology: true },
         () => {
             console.log('Connected to MongoDB');

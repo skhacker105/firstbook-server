@@ -1,13 +1,9 @@
+require('dotenv').config();
 const EXPRESS = require('express');
-
-const CONFIG = require('./config/config');
-
-const PORT = 8000;
-let env = 'production';
-
 const APP = EXPRESS();
+const PORT = 8000;
 
-require('./config/database.config')(CONFIG[env]);
+require('./config/database.config')();
 require('./config/express')(APP);
 require('./config/routes')(APP);
 

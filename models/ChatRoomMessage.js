@@ -4,8 +4,9 @@ const STRING = MONGOOSE.Schema.Types.String;
 const OBJECT_ID = MONGOOSE.Schema.Types.ObjectId;
 
 const CHATROOMMESSAGE_SCHEMA = MONGOOSE.Schema({
-    message: { type: STRING, required: true },
-    room: { type: OBJECT_ID, ref: 'Chatroom' }
+    room: { type: OBJECT_ID, ref: 'Chatroom', required: true },
+    roomKey: { type: STRING, required: true },
+    message: { type: STRING, required: true }
 });
 
 CHATROOMMESSAGE_SCHEMA.index({
