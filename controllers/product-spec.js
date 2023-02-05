@@ -1,5 +1,5 @@
 const HELPER = require('../utilities/helper');
-const HTTP = require('../utilities/HTTP');
+const HTTP = require('../utilities/http');
 const PRODUCT = require('mongoose').model('Product');
 const PRODUCTSPEC = require('mongoose').model('Productspec');
 
