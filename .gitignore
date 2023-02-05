@@ -8,7 +8,6 @@
 # dependencies
 /BookStore
 /node_modules
-/images
 
 # IDEs and editors
 /.idea
