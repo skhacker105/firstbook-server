@@ -29,6 +29,6 @@ module.exports = (config) => {
     require('../models/Contact');
     require('../models/Product');
     require('../models/Productspec');
-    require('../models/Chatroom');
-    require('../models/ChatroomMessage');
+    require('../models/ChatRoom');
+    require('../models/ChatRoomMessage');
 };
