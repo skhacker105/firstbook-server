@@ -41,20 +41,27 @@ module.exports = {
             let resource = {
                 resourceType: 'product',
                 resourceId: product._id,
-                imagePath: __dirname.replace('controllers', '') + 'images\\' + product._id.toString() + '_' + name,
+                image: image,
                 createdBy: HELPER.getAuthUserId(req)
             }
 
-            HELPER.saveImage(resource.imagePath, image, (error) => {
-                if (error) return HTTP.error(res, error);
+            IMAGE.create(resource).then((newImage) => {
+                product.defaultImage = newImage._id
+                product.save();
 
-                IMAGE.create(resource).then((newImage) => {
-                    product.defaultImage = newImage._id
-                    product.save();
+                return HTTP.success(res, '', 'Product image updated successfully.');
+            }).catch(err => HTTP.handleError(res, err));
 
-                    return HTTP.success(res, '', 'Product image updated successfully.');
-                }).catch(err => HTTP.handleError(res, err));
-            });
+            // HELPER.saveImage(resource.imagePath, image, (error) => {
+            //     if (error) return HTTP.error(res, error);
+
+            //     IMAGE.create(resource).then((newImage) => {
+            //         product.defaultImage = newImage._id
+            //         product.save();
+
+            //         return HTTP.success(res, '', 'Product image updated successfully.');
+            //     }).catch(err => HTTP.handleError(res, err));
+            // });
         });
     },
 
@@ -63,16 +70,15 @@ module.exports = {
 
         IMAGE.findById(pictureId).then(picture => {
             if (!picture) return HTTP.error(res, 'There is no picture with the given id in our database.');
-            const prefix = 'data:image/jpeg;base64,';
+            // const prefix = 'data:image/jpeg;base64,';
 
-            imageToBase64(picture.imagePath)
-                .then(response => HTTP.success(res, {
-                    _id: picture.id,
-                    name: picture.imagePath.split('\\').pop(),
-                    image: prefix + response
-                }))
-
-                .catch(err => HTTP.error(res, err));
+            HTTP.success(res, picture);
+            // imageToBase64(picture.imagePath)
+            //     .then(response => HTTP.success(res, {
+            //         _id: picture.id,
+            //         name: picture.imagePath.split('\\').pop(),
+            //         image: prefix + response
+            //     })).catch(err => HTTP.error(res, err));
         }).catch(err => HTTP.handleError(res, err));
     },
 
@@ -87,11 +93,12 @@ module.exports = {
                     product.defaultImage = ''
                     product.save();
 
-                    HELPER.deleteImage(deletedImage.imagePath, error => {
-                        if (error) return HTTP.error(res, error);
+                    return HTTP.success(res, deletedImage, 'Product image deleted successfully.');
+                    // HELPER.deleteImage(deletedImage.imagePath, error => {
+                    //     if (error) return HTTP.error(res, error);
 
-                        return HTTP.success(res, '', 'Product image deleted successfully.');
-                    })
+                    //     return HTTP.success(res, '', 'Product image deleted successfully.');
+                    // })
                 }).catch(err => HTTP.handleError(res, err));
         }).catch(err => HTTP.handleError(res, err));
     },
@@ -106,21 +113,29 @@ module.exports = {
             let resource = {
                 resourceType: 'product',
                 resourceId: product._id,
-                imagePath: __dirname.replace('controllers', '') + 'images\\' + product._id.toString() + '_' + name,
+                image: image,
                 createdBy: HELPER.getAuthUserId(req)
             }
 
-            HELPER.saveImage(resource.imagePath, image, (error) => {
-                if (error) return HTTP.error(res, error);
+            IMAGE.create(resource).then((newImage) => {
+                if (!product.images) product.images = [];
+                product.images.push(newImage._id);
+                product.save();
 
-                IMAGE.create(resource).then((newImage) => {
-                    if (!product.images) product.images = [];
-                    product.images.push(newImage._id);
-                    product.save();
+                return HTTP.success(res, newImage, 'Product image updated successfully.');
+            }).catch(err => HTTP.handleError(res, err));
 
-                    return HTTP.success(res, '', 'Product image updated successfully.');
-                }).catch(err => HTTP.handleError(res, err));
-            });
+            // HELPER.saveImage(resource.imagePath, image, (error) => {
+            //     if (error) return HTTP.error(res, error);
+
+            //     IMAGE.create(resource).then((newImage) => {
+            //         if (!product.images) product.images = [];
+            //         product.images.push(newImage._id);
+            //         product.save();
+
+            //         return HTTP.success(res, '', 'Product image updated successfully.');
+            //     }).catch(err => HTTP.handleError(res, err));
+            // });
         });
     },
 
@@ -138,12 +153,14 @@ module.exports = {
 
                 IMAGE.findByIdAndRemove(pictureId)
                     .then(deletedImage => {
+                        if (!deletedImage) return HTTP.error(res, 'There is no image with the given id in our database.');
 
-                        HELPER.deleteImage(deletedImage.imagePath, error => {
-                            if (error) return HTTP.error(res, error);
+                        return HTTP.success(res, deletedImage, 'Product image deleted successfully.');
+                        // HELPER.deleteImage(deletedImage.imagePath, error => {
+                        //     if (error) return HTTP.error(res, error);
 
-                            return HTTP.success(res, '', 'Product image deleted successfully.');
-                        })
+                        //     return HTTP.success(res, '', 'Product image deleted successfully.');
+                        // })
                     })
                     .catch(err => HTTP.handleError(res, err));
 

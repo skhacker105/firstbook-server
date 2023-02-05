@@ -3,11 +3,12 @@ const MONGOOSE = require('mongoose');
 const STRING = MONGOOSE.Schema.Types.String;
 const DATE = MONGOOSE.Schema.Types.Date;
 const OBJECT_ID = MONGOOSE.Schema.Types.ObjectId;
+const BUFFER = MONGOOSE.Schema.Types.Buffer;
 
 const IMAGE_SCHEMA = MONGOOSE.Schema({
     resourceType: { type: STRING, required: true },
     resourceId: { type: OBJECT_ID, ref: 'Product' },
-    imagePath: { type: STRING, default: '' },
+    image: { type: STRING },
     createdBy: { type: OBJECT_ID, ref: 'User' },
     creationDate: { type: DATE, default: Date.now }
 });
