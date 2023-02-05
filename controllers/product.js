@@ -1,6 +1,6 @@
 const VALIDATOR = require('validator');
 const HELPER = require('../utilities/helper');
-const HTTP = require('../utilities/HTTP');
+const HTTP = require('../utilities/http');
 const PRODUCT = require('mongoose').model('Product');
 const IMAGE = require('mongoose').model('Image');
 const USER = require('mongoose').model('User');
