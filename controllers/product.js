@@ -111,7 +111,7 @@ module.exports = {
             }
 
             HELPER.saveImage(resource.imagePath, image, (error) => {
-                if (error) return HTTP.error(res, 'Image Save Error');
+                if (error) return HTTP.error(res, error);
 
                 IMAGE.create(resource).then((newImage) => {
                     if (!product.images) product.images = [];
