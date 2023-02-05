@@ -10,6 +10,9 @@ const ERROR_CONTROLLER = require('../controllers/error');
 const AUTH = require('./auth');
 
 module.exports = (APP) => {
+    // Health Check
+    APP.get('/', (req, res) => res.send('OK'));
+
     // USER
     APP.post('/user/register', USER_CONTROLLER.register);
     APP.post('/user/login', USER_CONTROLLER.login);
@@ -50,7 +53,7 @@ module.exports = (APP) => {
     APP.post('/product/picture', AUTH.isAuth, PRODUCT_CONTROLLER.addMainPicture);
     APP.get('/picture/:pictureId', PRODUCT_CONTROLLER.getPicture);
     APP.delete('/product/picture/:productId', AUTH.isAuth, PRODUCT_CONTROLLER.deleteMainPicture);
-    
+
     APP.post('/product/gallery', AUTH.isAuth, PRODUCT_CONTROLLER.addPictures);
     APP.delete('/product/gallery/:pictureId', PRODUCT_CONTROLLER.deletePictures);
 
@@ -59,7 +62,7 @@ module.exports = (APP) => {
     APP.post('/product/comment/add/:productId', AUTH.isAuth, PRODUCT_CONTROLLER.postComment);
     APP.put('/product/comment/edit/:commentId', AUTH.isAuth, PRODUCT_CONTROLLER.editComment);
     APP.delete('/product/comment/delete/:commentId', AUTH.isAuth, PRODUCT_CONTROLLER.deleteComment);
-    
+
     // PRODUCT / INVENTORY
     APP.get('/userproducts', PRODUCT_CONTROLLER.userProducts);
     APP.get('/product/enable/:productId', AUTH.isAuth, PRODUCT_CONTROLLER.enable);
