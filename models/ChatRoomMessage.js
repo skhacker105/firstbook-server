@@ -2,15 +2,20 @@ const MONGOOSE = require('mongoose');
 
 const STRING = MONGOOSE.Schema.Types.String;
 const OBJECT_ID = MONGOOSE.Schema.Types.ObjectId;
+const DATE = MONGOOSE.Schema.Types.Date;
 
 const CHATROOMMESSAGE_SCHEMA = MONGOOSE.Schema({
     room: { type: OBJECT_ID, ref: 'Chatroom', required: true },
     roomKey: { type: STRING, required: true },
-    message: { type: STRING, required: true }
+    message: { type: STRING, required: true },
+    type: { type: STRING, required: true },
+    creationDate: { type: DATE, default: Date.now },
+    replyOf: [{ type: OBJECT_ID, ref: 'ChatroomMessage' }]
 });
 
 CHATROOMMESSAGE_SCHEMA.index({
-    message: 'text'
+    message: 'text',
+    roomKey: 'text'
 });
 
 CHATROOMMESSAGE_SCHEMA.index({

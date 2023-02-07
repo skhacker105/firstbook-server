@@ -9,3 +9,5 @@ require('./config/routes')(APP);
 
 const SERVER = APP.listen(PORT);
 console.log(`Server is listening on port ${PORT}`);
+
+require('./config/socket')(SERVER);
