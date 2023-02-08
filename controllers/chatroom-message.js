@@ -149,6 +149,7 @@ module.exports = {
             limit: PAGE_LIMIT,
         };
 
+        console.log('params = ', params);
         if (params.query) {
             let query = JSON.parse(params.query);
             searchParams.query = { roomKey: query['searchTerm'] };
@@ -165,6 +166,8 @@ module.exports = {
         if (params.limit) {
             searchParams.limit = JSON.parse(params.limit);
         }
+
+        console.log('searchParams = ', searchParams);
 
         CHATROOMMESSAGE
             .find(searchParams.query)
