@@ -22,7 +22,6 @@ module.exports = (SERVER) => {
         // Catch Message
         socket.on('message', (message) => {
             // insert message into DB
-            // io.in(message.roomKey).emit('new message', message);
             CHATROOMMESSAGECONTROLLER.add(
                 message,
                 (newMessage) => {

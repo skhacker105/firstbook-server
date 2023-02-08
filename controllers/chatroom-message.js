@@ -141,7 +141,7 @@ module.exports = {
     },
 
     getAllRoomMessages: (req, res) => {
-        let params = req.params;
+        let params = req.query;
         let searchParams = {
             query: {},
             sort: { creationDate: -1 },
@@ -149,7 +149,7 @@ module.exports = {
             limit: PAGE_LIMIT,
         };
 
-        if (params.query || typeof params.query === 'string') {
+        if (params.query) {
             let query = JSON.parse(params.query);
             searchParams.query = { roomKey: query['searchTerm'] };
         }
