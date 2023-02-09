@@ -167,7 +167,6 @@ module.exports = {
             searchParams.limit = JSON.parse(params.limit);
         }
 
-        console.log('searchParams = ', searchParams);
 
         CHATROOMMESSAGE
             .find(searchParams.query)
