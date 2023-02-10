@@ -17,9 +17,11 @@ function generateToken(userInfo) {
         isAdmin: userInfo.isAdmin,
         roles: userInfo.roles
     };
-    const PAYLOAD = { sub: USER };
+    const today = Date.now();
+    const expiryTime = process.env.sessionExpiry * 1000;
+    const PAYLOAD = { sub: USER, expiresIn: today + expiryTime };
 
-    return JWT.sign(PAYLOAD, SECRET, { expiresIn: 604800000 });
+    return JWT.sign(PAYLOAD, SECRET, { expiresIn: +process.env.sessionExpiry });
 }
 
 module.exports = {

@@ -149,7 +149,6 @@ module.exports = {
             limit: PAGE_LIMIT,
         };
 
-        console.log('params = ', params);
         if (params.query) {
             let query = JSON.parse(params.query);
             searchParams.query = { roomKey: query['searchTerm'] };
