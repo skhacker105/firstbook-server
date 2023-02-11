@@ -24,7 +24,8 @@ const USER_SCHEMA = MONGOOSE.Schema({
     cart: { type: OBJECT_ID, ref: 'Cart' },
     receipts: [{ type: OBJECT_ID, ref: 'Receipt' }],
     favoriteBooks: [{ type: OBJECT_ID, ref: 'Book' }],
-    favoriteContacts: [{ type: OBJECT_ID, ref: 'Contact' }]
+    favoriteContacts: [{ type: OBJECT_ID, ref: 'Contact' }],
+    resetId: { type: STRING, default: '' }
 });
 
 USER_SCHEMA.method({

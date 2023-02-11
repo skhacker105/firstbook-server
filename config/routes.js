@@ -24,6 +24,9 @@ module.exports = (APP) => {
     APP.post('/user/changeAvatar', AUTH.isAuth, USER_CONTROLLER.changeAvatar);
     APP.post('/user/blockComments/:userId', AUTH.isInRole('Admin'), USER_CONTROLLER.blockComments);
     APP.post('/user/unlockComments/:userId', AUTH.isInRole('Admin'), USER_CONTROLLER.unblockComments);
+    APP.post('/user/verifyAndSendOTP', USER_CONTROLLER.verifyAndSendOTP);
+    APP.post('/user/verifyOTP/:userId', USER_CONTROLLER.verifyOTP);
+    APP.post('/user/resetPassword/:userId', USER_CONTROLLER.resetPassword);
 
     // CART
     APP.get('/cart/getSize', AUTH.isAuth, CART_CONTROLLER.getCartSize);

@@ -1,8 +1,11 @@
 const VALIDATOR = require('validator');
 const PASSPORT = require('passport');
-const HTTP = require('../utilities/http')
+const HTTP = require('../utilities/http');
+const EMAILER = require('../config/emailer');
+const HELPER = require('../utilities/helper');
 const USER = require('mongoose').model('User');
 const RECEIPT = require('mongoose').model('Receipt');
+const ENCRYPTION = require('../utilities/encryption');
 
 const PAGE_LIMIT = 15;
 
@@ -83,6 +86,65 @@ function validateAvatarForm(payload) {
 }
 
 module.exports = {
+
+    verifyAndSendOTP: (req, res) => {
+        const toFind = req.body.toFind
+
+        USER.findOne({
+            $or: [
+                { username: toFind },
+                { email: toFind }
+            ]
+        })
+            .then(user => {
+                if (!user) return HTTP.error(res, `User ${toFind} not found in our database`);
+
+                user.resetId = HELPER.newOTP();
+                user.save();
+
+                let mailData = HELPER.getOTPMailData(user.email, user.resetId);
+                EMAILER.getTransporter().sendMail(mailData, (err, info) => {
+                    if (err) return HTTP.error(res, 'Issue while sending email.', err);
+
+                    return HTTP.success(res, user.id, 'OTP sent to email');
+                });
+            })
+            .catch((err) => HTTP.handleError(res, err));
+    },
+
+    verifyOTP: (req, res) => {
+        const userId = req.params.userId;
+        const otp = req.body.otp;
+
+        USER.findById(userId).then(user => {
+            if (!user) return HTTP.error(res, `User not found in our database`);
+            if (user.resetId != otp) return HTTP.error(res, `OTP verification failed`);
+
+            return HTTP.success(res, true);
+        })
+        .catch((err) => HTTP.handleError(res, err));
+    },
+
+    resetPassword: (req, res) => {
+        const userId = req.params.userId;
+        const password = req.body.password;
+        const confirmPassword = req.body.confirmPassword;
+        if (confirmPassword != password) return HTTP.error(res, 'Password nad confirm password do not match')
+
+        let salt = ENCRYPTION.generateSalt();
+        let hashedPassword = ENCRYPTION.generateHashedPassword(salt, password);
+
+        USER.findById(userId).then(user => {
+            if (!user) return HTTP.error(res, `User not found in our database`);
+
+            user.password = hashedPassword;
+            user.salt = salt
+            user.save();
+            return HTTP.success(res, true);
+        })
+        .catch((err) => HTTP.handleError(res, err));
+    },
+
     register: (req, res) => {
 
         let validationResult = validateRegisterForm(req.body);
