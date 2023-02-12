@@ -27,7 +27,6 @@ module.exports = {
 
                 CHATROOMMESSAGE.create(message)
                     .then((newMessage) => {
-                        console.log('newMessage = ', newMessage)
                         if (!newMessage) {
                             if (error_callback) error_callback('Message save error.')
                             else success_callback(null);

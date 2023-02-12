@@ -71,7 +71,7 @@ module.exports = {
             passwordField: 'password',
             session: false
         }, (username, password, done) => {
-            USER.findOne({ username: username }).then((user) => {
+            USER.findOne({ $or: [{ username: username }, { email: username }] }).then((user) => {
                 if (!user) {
                     return done(null, false);
                 }
