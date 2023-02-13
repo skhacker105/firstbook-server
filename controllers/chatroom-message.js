@@ -174,7 +174,6 @@ module.exports = {
                     .sort(searchParams.sort)
                     .skip(searchParams.skip)
                     .limit(searchParams.limit)
-                    .populate('replyOf')
                     .populate({
                         path: 'replyOf',
                         populate: {
@@ -184,7 +183,6 @@ module.exports = {
                             }
                         }
                     })
-                    .populate('room')
                     .populate({
                         path: 'room',
                         populate: {
