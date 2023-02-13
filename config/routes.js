@@ -101,6 +101,7 @@ module.exports = (APP) => {
     APP.put('/chat/edit/:roomId', AUTH.isAuth, CHATROOM_CONTROLLER.edit);
     APP.delete('/chat/delete/:roomId', AUTH.isAuth, CHATROOM_CONTROLLER.delete);
     APP.delete('/chat/undelete/:roomId', AUTH.isAuth, CHATROOM_CONTROLLER.undelete);
+    APP.delete('/chat/message/:messageId', CHATROOMMESSAGE_CONTROLLER.delete);
 
 
     APP.all('*', ERROR_CONTROLLER.error);

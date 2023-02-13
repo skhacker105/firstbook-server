@@ -33,7 +33,15 @@ module.exports = {
                         }
 
                         CHATROOMMESSAGE.findById(newMessage._id)
-                            .populate('room')
+                            .populate({
+                                path: 'replyOf',
+                                populate: {
+                                    path: 'room',
+                                    populate: {
+                                        path: 'user'
+                                    }
+                                }
+                            })
                             .populate({
                                 path: 'room',
                                 populate: {
@@ -78,14 +86,14 @@ module.exports = {
     },
 
     delete: (req, res) => {
-        let roomId = req.params.roomId;
+        let messageId = req.params.messageId;
 
-        CHATROOM.findById(roomId).then((deletedRoom) => {
-            if (!deletedRoom) return HTTP.error(res, 'There is no chat room with the given id in our database.');
+        CHATROOMMESSAGE.findById(messageId).then((deletedMessage) => {
+            if (!deletedMessage) return HTTP.error(res, 'There is no message with the given id in our database.');
 
-            deletedRoom.inactive = true;
-            deletedRoom.save();
-            return HTTP.success(res, deletedRoom, 'Chat room deleted successfully.');
+            deletedMessage.isDeleted = true;
+            deletedMessage.save();
+            return HTTP.success(res, deletedMessage, 'Message deleted successfully.');
         }).catch(err => HTTP.handleError(res, err));
     },
 
