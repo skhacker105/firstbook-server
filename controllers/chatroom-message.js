@@ -41,7 +41,6 @@ module.exports = {
                                 }
                             })
                             .then(dbMessage => {
-                                console.log('dbMessage = ', dbMessage)
                                 success_callback(dbMessage);
                             })
                     }).catch(err => error_callback(err));
@@ -175,6 +174,16 @@ module.exports = {
                     .sort(searchParams.sort)
                     .skip(searchParams.skip)
                     .limit(searchParams.limit)
+                    .populate('replyOf')
+                    .populate({
+                        path: 'replyOf',
+                        populate: {
+                            path: 'room',
+                            populate: {
+                                path: 'user'
+                            }
+                        }
+                    })
                     .populate('room')
                     .populate({
                         path: 'room',
