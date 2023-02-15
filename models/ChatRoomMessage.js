@@ -9,6 +9,7 @@ const CHATROOMMESSAGE_SCHEMA = MONGOOSE.Schema({
     room: { type: OBJECT_ID, ref: 'Chatroom', required: true },
     roomKey: { type: STRING, required: true },
     message: { type: STRING, required: true },
+    product: { type: OBJECT_ID, ref: 'Product' },
     type: { type: STRING, required: true },
     creationDate: { type: DATE, default: Date.now },
     replyOf: [{ type: OBJECT_ID, ref: 'ChatroomMessage' }],

@@ -434,8 +434,10 @@ module.exports = {
         if (params.limit) {
             searchParams.limit = JSON.parse(params.limit);
         }
-        if (!HELPER.isAdmin(req))
-            searchParams.query['createdBy'] = HELPER.getAuthUserId(req);
+
+        if (params.createdBy) {
+            searchParams.query['createdBy'] = params.createdBy;
+        }
 
         PRODUCT
             .find(searchParams.query)

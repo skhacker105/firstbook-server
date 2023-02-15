@@ -1,5 +1,7 @@
 const CHATROOM = require('mongoose').model('Chatroom');
 const CHATROOMMESSAGE = require('mongoose').model('ChatroomMessage');
+const USER = require('mongoose').model('User');
+const ENCRYPTION = require('../utilities/encryption');
 const HTTP = require('../utilities/http');
 const HELPER = require('../utilities/helper');
 
@@ -210,4 +212,130 @@ module.exports = {
                     });
             });
     },
+
+    shareProductWithUser: (req, res) => {
+        let loggedInUserId = HELPER.getAuthUserId(req);
+        let userId = req.params.userId;
+        let productId = req.body.productId;
+        let message = req.body.message;
+
+        if (!loggedInUserId) return HTTP.error(res, 'No loggedin user session detected.')
+
+        USER.findById(userId)
+            .then(user => {
+                if (!user) return HTTP.error(res, 'Cannot find the user selected to share with.');
+
+                CHATROOM.find({ $or: [{ user: userId }, { user: loggedInUserId }] })
+                    .then(rooms => {
+
+                        if (!rooms || rooms.length === 0)
+                            return addRoomAndSendMessage(userId, loggedInUserId, productId, message)
+                                .then(newMessage => HTTP.success(res, newMessage))
+                                .catch(err => HTTP.handleError(res, err));
+
+                        let commonRooms = findCommonRooms(rooms, loggedInUserId, userId);
+                        if (!commonRooms || commonRooms.length === 0)
+                            return addRoomAndSendMessage(userId, loggedInUserId, productId, message)
+                                .then(newMessage => HTTP.success(res, newMessage))
+                                .catch(err => HTTP.handleError(res, err));
+
+                        let query = commonRoomFilterQuery(commonRooms);
+                        CHATROOM.aggregate([query])
+                            .then(allCommonRoomUsers => {
+
+                                const allCommonRoomUsersByRoomKey = allCommonRoomUsers
+                                    .reduce((roomArr, room) => {
+                                        if (!roomArr[room.roomKey]) roomArr[room.roomKey] = [];
+                                        roomArr[room.roomKey].push(room);
+                                        return roomArr;
+                                    }, {});
+                                const allCommonRoomUsersByRoomKeyArr = Object.keys(allCommonRoomUsersByRoomKey).map(roomkey => allCommonRoomUsersByRoomKey[roomkey]);
+                                const personalRoom = allCommonRoomUsersByRoomKeyArr.find(x => x.length === 2)?.find(r => r.user.equals(loggedInUserId));
+                                // console.log('personalRoom = ', personalRoom)
+                                if (!personalRoom)
+                                    return addRoomAndSendMessage(userId, loggedInUserId, productId, message)
+                                        .then(newMessage => HTTP.success(res, newMessage))
+                                        .catch(err => HTTP.handleError(res, err));
+
+                                postProductMessage(personalRoom, productId, message)
+                                    .then(newMessage => HTTP.success(res, newMessage))
+                                    .catch(err => HTTP.handleError(res, err));
+                            })
+                            .catch(err => HTTP.handleError(res, err));
+                    })
+                    .catch(err => HTTP.handleError(res, err));
+            })
+            .catch(err => HTTP.handleError(res, err));
+    }
+}
+
+function commonRoomFilterQuery(commonRooms) {
+    let r = commonRooms.map(room => {
+        return { roomKey: room.roomKey }
+    });
+    return { $match: { $or: r && r.length > 0 ? r : [{ roomKey: 'NA' }] } };
+}
+
+function findCommonRooms(rooms, userId1, userId2) {
+    let user1Rooms = rooms.filter(r => r.user.equals(userId1));
+    let user2Rooms = rooms.filter(r => r.user.equals(userId2));
+    return user1Rooms.filter(r => user2Rooms.some(ur => ur.roomKey === r.roomKey));
+}
+
+function addRoomAndSendMessage(userId1, loggedInUserId, productId, message) {
+    return new Promise((resolve, reject) => {
+        addNewChatRoom(userId1, loggedInUserId)
+            .then(room => {
+                postProductMessage(room, productId, message)
+                    .then(newMessage => {
+                        resolve(newMessage)
+                    })
+                    .catch(err => reject(err));
+            })
+            .catch(err => reject(err));
+    })
+}
+
+function addNewChatRoom(userId1, loggedInUserId) {
+    const hashName = ENCRYPTION.generateHashedPassword(userId1, loggedInUserId);
+    let newChatroom1 = {
+        name: hashName,
+        user: userId1,
+        roomKey: hashName
+    };
+    let newChatroomloggedInUser = {
+        name: hashName,
+        user: loggedInUserId,
+        roomKey: hashName
+    };
+    return new Promise((resolve, reject) => {
+        CHATROOM.create(newChatroom1)
+            .then((newRoom1) => {
+                CHATROOM.create(newChatroomloggedInUser)
+                    .then((newRoomloggedInUser) => {
+                        resolve(newRoomloggedInUser);
+                    })
+                    .catch(err => reject(err));
+            })
+            .catch(err => reject(err));
+    });
+}
+
+function postProductMessage(room, productId, message) {
+    let msgPayload = {
+        room: room._id,
+        roomKey: room.roomKey,
+        message: message,
+        product: productId,
+        type: HELPER.messageType.internalProduct
+    }
+    return new Promise((resolve, reject) => {
+        CHATROOMMESSAGE.create(msgPayload)
+            .then(newMessage => {
+                if (!newMessage) return reject('Sharing product failed.');
+
+                return resolve(newMessage);
+            })
+            .catch(err => reject(err));
+    });
 }

@@ -2,6 +2,12 @@ const ENCRYPTION = require('../utilities/encryption');
 const FS = require('fs')
 
 module.exports = {
+
+    messageType: {
+        string: 'string',
+        internalProduct: 'internal_product'
+    },
+
     getAuthUserId: (req) => {
         return ENCRYPTION.parseJwt(req.headers.authorization).sub.id;
     },
