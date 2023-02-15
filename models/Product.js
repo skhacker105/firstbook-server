@@ -12,7 +12,7 @@ const PRODUCT_SCHEMA = MONGOOSE.Schema({
     images: [{ type: STRING }],
     defaultImage: { type: STRING },
     disabled: { type: BOOLEAN, default: false },
-    specifications: [{ type: OBJECT_ID, ref: 'ProductSpec' }],
+    specifications: [{ type: OBJECT_ID, ref: 'Productspec' }],
     createdBy: { type: OBJECT_ID, ref: 'User' },
     creationDate: { type: DATE, default: Date.now },
     currentRating: { type: NUMBER, default: 0 },

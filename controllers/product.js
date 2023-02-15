@@ -322,6 +322,7 @@ module.exports = {
         let productId = req.params.productId;
 
         PRODUCT.findById(productId)
+            .populate('specifications')
             .then((product) => {
                 if (!product) return HTTP.error(res, 'There is no product with the given id in our database.');
 
