@@ -19,7 +19,9 @@ const PRODUCT_SCHEMA = MONGOOSE.Schema({
     ratingPoints: { type: NUMBER, default: 0 },
     ratedCount: { type: NUMBER, default: 0 },
     ratedBy: [{ type: OBJECT_ID, ref: 'User' }],
-    comments: [{ type: OBJECT_ID, ref: 'Comment' }]
+    comments: [{ type: OBJECT_ID, ref: 'Comment' }],
+    purchaseCost: { type: STRING },
+    sellingCost: { type: STRING }
 });
 
 PRODUCT_SCHEMA.index({

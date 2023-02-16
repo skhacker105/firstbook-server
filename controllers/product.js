@@ -347,6 +347,8 @@ module.exports = {
         PRODUCT.findById(productId).then((product) => {
             if (!product) return HTTP.error(res, 'There is no product with the given id in our database.');
 
+            product.purchaseCost = editedProduct.purchaseCost
+            product.sellingCost = editedProduct.sellingCost
             product.name = editedProduct.name;
             product.description = editedProduct.description;
             product.save();
