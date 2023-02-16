@@ -100,6 +100,21 @@ module.exports = {
         }).catch(err => HTTP.handleError(res, err));
     },
 
+    saveNotes: (req, res) => {
+        const contactId = req.params.contactId;
+        const notes = req.body.notes;
+
+        CONTACT.findById(contactId)
+        .then(contact => {
+            if (!contact) return HTTP.error(res, 'No cant found with given id in our database.');
+
+            contact.notes = notes;
+            contact.save();
+            return HTTP.success(res, contact);
+        })
+        .catch(err => HTTP.handleError(res, err));
+    },
+
     rate: (req, res) => {
         let contactId = req.params.contactId;
         let rating = req.body.rating;

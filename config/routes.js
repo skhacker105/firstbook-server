@@ -48,6 +48,7 @@ module.exports = (APP) => {
     APP.get('/contact/search', CONTACT_CONTROLLER.search);
     APP.get('/contact/details/:contactId', CONTACT_CONTROLLER.getSingle);
     APP.post('/contact/add', AUTH.isAuth, CONTACT_CONTROLLER.add);
+    APP.post('/contact/saveNotes/:contactId', AUTH.isAuth, CONTACT_CONTROLLER.saveNotes);
     APP.put('/contact/edit/:contactId', AUTH.isAuth, CONTACT_CONTROLLER.edit);
     APP.delete('/contact/delete/:contactId', AUTH.isAuth, CONTACT_CONTROLLER.delete);
     APP.post('/contact/rate/:contactId', AUTH.isAuth, CONTACT_CONTROLLER.rate);
