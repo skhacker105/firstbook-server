@@ -266,6 +266,56 @@ module.exports = {
                     .catch(err => HTTP.handleError(res, err));
             })
             .catch(err => HTTP.handleError(res, err));
+    },
+
+    userChatRoom: (req, res) => {
+        let loggedInUserId = HELPER.getAuthUserId(req);
+        let userId = req.params.userId;
+
+        USER.findById(userId)
+            .then(user => {
+                if (!user) return HTTP.error(res, 'Cannot find the user selected to share with.');
+
+                CHATROOM.find({ $or: [{ user: userId }, { user: loggedInUserId }] })
+                    .then(rooms => {
+
+                        if (!rooms || rooms.length === 0)
+                            return addNewChatRoom(userId, loggedInUserId)
+                                .then(newRoom => HTTP.success(res, newRoom))
+                                .catch(err => HTTP.handleError(res, err));
+
+                        let commonRooms = findCommonRooms(rooms, loggedInUserId, userId);
+                        if (!commonRooms || commonRooms.length === 0)
+                            return aaddNewChatRoom(userId, loggedInUserId)
+                                .then(newRoom => HTTP.success(res, newRoom))
+                                .catch(err => HTTP.handleError(res, err));
+
+                        let query = commonRoomFilterQuery(commonRooms);
+                        CHATROOM.aggregate([query])
+                            .then(allCommonRoomUsers => {
+
+                                const allCommonRoomUsersByRoomKey = allCommonRoomUsers
+                                    .reduce((roomArr, room) => {
+                                        if (!roomArr[room.roomKey]) roomArr[room.roomKey] = [];
+                                        roomArr[room.roomKey].push(room);
+                                        return roomArr;
+                                    }, {});
+                                const allCommonRoomUsersByRoomKeyArr = Object.keys(allCommonRoomUsersByRoomKey).map(roomkey => allCommonRoomUsersByRoomKey[roomkey]);
+                                const personalRoom = allCommonRoomUsersByRoomKeyArr.find(x => x.length === 2)?.find(r => r.user.equals(loggedInUserId));
+
+                                if (!personalRoom)
+                                    return addNewChatRoom(userId, loggedInUserId)
+                                        .then(newRoom => HTTP.success(res, newRoom))
+                                        .catch(err => HTTP.handleError(res, err));
+
+                                    return HTTP.success(res, personalRoom);
+                            })
+                            .catch(err => HTTP.handleError(res, err));
+                    })
+                    .catch(err => HTTP.handleError(res, err));
+            })
+            .catch(err => HTTP.handleError(res, err));
+
     }
 }
 
