@@ -414,6 +414,7 @@ module.exports = {
 
     search: (req, res) => {
         let params = req.query;
+        let getIds = req.path.indexOf('getIds') >= 0;
         let searchParams = {
             query: {},
             sort: { creationDate: -1 },
@@ -452,7 +453,8 @@ module.exports = {
                     .skip(searchParams.skip)
                     .limit(searchParams.limit)
                     .then((result) => {
-                        result = result.map(r => r._id);
+                        if (getIds)
+                            result = result.map(r => r._id);
                         return res.status(200).json({
                             message: '',
                             data: result,
@@ -464,5 +466,5 @@ module.exports = {
                         return HTTP.error(res, 'Bad Request!');
                     });
             });
-    }
+    },
 }
