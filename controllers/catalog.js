@@ -58,6 +58,17 @@ module.exports = {
         }).catch(err => HTTP.handleError(res, err));
     },
 
+    userCatalogs: (req, res) => {
+        CATALOG.find({ createdBy: HELPER.getAuthUserId(req) })
+            .then(catalogs => {
+                if (!catalogs || catalogs.length === 0) return HTTP.success(res, [])
+
+                const catIds = catalogs.map(p => p._id);
+                HTTP.success(res, catIds);
+            })
+            .catch(err => HTTP.handleError(res, err));
+    },
+
     search: (req, res) => {
         let params = req.query;
         let searchParams = {
@@ -82,6 +93,10 @@ module.exports = {
 
         if (params.limit) {
             searchParams.limit = JSON.parse(params.limit);
+        }
+
+        if (params.createdBy) {
+            searchParams.query['createdBy'] = params.createdBy;
         }
 
         CATALOG

@@ -19,7 +19,7 @@ module.exports = (APP) => {
     APP.delete('/product/comment/delete/:commentId', AUTH.isAuth, PRODUCT_CONTROLLER.deleteComment);
 
     // PRODUCT / INVENTORY
-    APP.get('/userproducts', PRODUCT_CONTROLLER.userProducts);
+    APP.get('/product/userproducts', PRODUCT_CONTROLLER.userProducts);
     APP.get('/product/enable/:productId', AUTH.isAuth, PRODUCT_CONTROLLER.enable);
     APP.get('/product/disable/:productId', AUTH.isAuth, PRODUCT_CONTROLLER.disable);
     APP.get('/product/search', PRODUCT_CONTROLLER.search);
