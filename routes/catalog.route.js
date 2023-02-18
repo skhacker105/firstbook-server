@@ -9,5 +9,6 @@ module.exports = (APP) => {
     APP.get('/catalog/search', CATALOG_CONTROLLER.search);
     APP.post('/catalog/add', AUTH.isAuth, CATALOG_CONTROLLER.add);
     APP.put('/catalog/edit/:catalogId', AUTH.isAuth, CATALOG_CONTROLLER.edit);
-    APP.delete('/catalog/delete/:catalogId', AUTH.isAuth, CATALOG_CONTROLLER.delete);
+    APP.delete('/catalog/enable/:catalogId', AUTH.isAuth, CATALOG_CONTROLLER.enable);
+    APP.delete('/catalog/disable/:catalogId', AUTH.isAuth, CATALOG_CONTROLLER.disable);
 }

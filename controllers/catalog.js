@@ -48,13 +48,27 @@ module.exports = {
         }).catch(err => HTTP.handleError(res, err));
     },
 
-    delete: (req, res) => {
+    enable: (req, res) => {
         let catalogId = req.params.catalogId;
 
-        CATALOG.findByIdAndRemove(catalogId).then((deletedCatalog) => {
-            if (!deletedCatalog) return HTTP.error(res, 'There is no catalog with the given id in our database.');
+        CATALOG.findById(catalogId).then((catalog) => {
+            if (!catalog) return HTTP.error(res, 'There is no catalog with the given id in our database.');
 
-            return HTTP.success(res, deletedContact, 'Catalog deleted successfully!');
+            catalog.isDeleted = false;
+            catalog.save();
+            return HTTP.success(res, catalog, 'Catalog deleted successfully!');
+        }).catch(err => HTTP.handleError(res, err));
+    },
+
+    disable: (req, res) => {
+        let catalogId = req.params.catalogId;
+
+        CATALOG.findById(catalogId).then((catalog) => {
+            if (!catalog) return HTTP.error(res, 'There is no catalog with the given id in our database.');
+
+            catalog.isDeleted = true;
+            catalog.save();
+            return HTTP.success(res, catalog, 'Catalog deleted successfully!');
         }).catch(err => HTTP.handleError(res, err));
     },
 
