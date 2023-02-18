@@ -5,7 +5,8 @@ module.exports = {
 
     messageType: {
         string: 'string',
-        internalProduct: 'internal_product'
+        internalProduct: 'internal_product',
+        internalCatalog: 'internal_product_catalog'
     },
 
     getAuthUserId: (req) => {

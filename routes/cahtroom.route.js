@@ -12,6 +12,7 @@ module.exports = (APP) => {
     APP.get('/chat/userChatRoom/:userId', AUTH.isAuth, CHATROOMMESSAGE_CONTROLLER.userChatRoom);
     APP.post('/chat/add', AUTH.isAuth, CHATROOM_CONTROLLER.add);
     APP.post('/chat/shareProductWithUser/:userId', AUTH.isAuth, CHATROOMMESSAGE_CONTROLLER.shareProductWithUser);
+    APP.post('/chat/shareCatalogWithUser/:userId', AUTH.isAuth, CHATROOMMESSAGE_CONTROLLER.shareCatalogWithUser);
     APP.put('/chat/edit/:roomId', AUTH.isAuth, CHATROOM_CONTROLLER.edit);
     APP.delete('/chat/delete/:roomId', AUTH.isAuth, CHATROOM_CONTROLLER.delete);
     APP.delete('/chat/undelete/:roomId', AUTH.isAuth, CHATROOM_CONTROLLER.undelete);

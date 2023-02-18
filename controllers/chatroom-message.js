@@ -35,6 +35,7 @@ module.exports = {
                         }
 
                         CHATROOMMESSAGE.findById(newMessage._id)
+                            .populate('catalog')
                             .populate({
                                 path: 'replyOf',
                                 populate: {
@@ -185,6 +186,15 @@ module.exports = {
                     .skip(searchParams.skip)
                     .limit(searchParams.limit)
                     .populate({
+                        path: 'catalog',
+                        populate: {
+                            path: 'products',
+                            populate: {
+                                path: 'product'
+                            }
+                        }
+                    })
+                    .populate({
                         path: 'replyOf',
                         populate: {
                             path: 'room',
@@ -217,53 +227,38 @@ module.exports = {
         let loggedInUserId = HELPER.getAuthUserId(req);
         let userId = req.params.userId;
         let productId = req.body.productId;
-        let message = req.body.message;
+        let message = req.body.message ? req.body.message : '';
 
         if (!loggedInUserId) return HTTP.error(res, 'No loggedin user session detected.')
 
-        USER.findById(userId)
-            .then(user => {
-                if (!user) return HTTP.error(res, 'Cannot find the user selected to share with.');
 
-                CHATROOM.find({ $or: [{ user: userId }, { user: loggedInUserId }] })
-                    .then(rooms => {
+        getUserRoom(userId, loggedInUserId)
+            .then(newRoom => {
+                if (!newRoom) return HTTP.error(res, 'Cannot find chat room with selected user.');
 
-                        if (!rooms || rooms.length === 0)
-                            return addRoomAndSendMessage(userId, loggedInUserId, productId, message)
-                                .then(newMessage => HTTP.success(res, newMessage))
-                                .catch(err => HTTP.handleError(res, err));
+                postProductMessage(newRoom, productId, message)
+                .then(newMessage => HTTP.success(res, newMessage))
+                .catch(err => HTTP.handleError(res, err));
+            })
+            .catch(err => HTTP.handleError(res, err));
+    },
 
-                        let commonRooms = findCommonRooms(rooms, loggedInUserId, userId);
-                        if (!commonRooms || commonRooms.length === 0)
-                            return addRoomAndSendMessage(userId, loggedInUserId, productId, message)
-                                .then(newMessage => HTTP.success(res, newMessage))
-                                .catch(err => HTTP.handleError(res, err));
+    shareCatalogWithUser: (req, res) => {
+        let loggedInUserId = HELPER.getAuthUserId(req);
+        let userId = req.params.userId;
+        let catalogId = req.body.catalogId;
+        let message = req.body.message ? req.body.message : '';
 
-                        let query = commonRoomFilterQuery(commonRooms);
-                        CHATROOM.aggregate([query])
-                            .then(allCommonRoomUsers => {
+        if (!loggedInUserId) return HTTP.error(res, 'No loggedin user session detected.')
 
-                                const allCommonRoomUsersByRoomKey = allCommonRoomUsers
-                                    .reduce((roomArr, room) => {
-                                        if (!roomArr[room.roomKey]) roomArr[room.roomKey] = [];
-                                        roomArr[room.roomKey].push(room);
-                                        return roomArr;
-                                    }, {});
-                                const allCommonRoomUsersByRoomKeyArr = Object.keys(allCommonRoomUsersByRoomKey).map(roomkey => allCommonRoomUsersByRoomKey[roomkey]);
-                                const personalRoom = allCommonRoomUsersByRoomKeyArr.find(x => x.length === 2)?.find(r => r.user.equals(loggedInUserId));
-                                // console.log('personalRoom = ', personalRoom)
-                                if (!personalRoom)
-                                    return addRoomAndSendMessage(userId, loggedInUserId, productId, message)
-                                        .then(newMessage => HTTP.success(res, newMessage))
-                                        .catch(err => HTTP.handleError(res, err));
 
-                                postProductMessage(personalRoom, productId, message)
-                                    .then(newMessage => HTTP.success(res, newMessage))
-                                    .catch(err => HTTP.handleError(res, err));
-                            })
-                            .catch(err => HTTP.handleError(res, err));
-                    })
-                    .catch(err => HTTP.handleError(res, err));
+        getUserRoom(userId, loggedInUserId)
+            .then(newRoom => {
+                if (!newRoom) return HTTP.error(res, 'Cannot find chat room with selected user.');
+
+                postCatalogMessage(newRoom, catalogId, message)
+                .then(newMessage => HTTP.success(res, newMessage))
+                .catch(err => HTTP.handleError(res, err));
             })
             .catch(err => HTTP.handleError(res, err));
     },
@@ -272,47 +267,10 @@ module.exports = {
         let loggedInUserId = HELPER.getAuthUserId(req);
         let userId = req.params.userId;
 
-        USER.findById(userId)
-            .then(user => {
-                if (!user) return HTTP.error(res, 'Cannot find the user selected to share with.');
-
-                CHATROOM.find({ $or: [{ user: userId }, { user: loggedInUserId }] })
-                    .then(rooms => {
-
-                        if (!rooms || rooms.length === 0)
-                            return addNewChatRoom(userId, loggedInUserId)
-                                .then(newRoom => HTTP.success(res, newRoom))
-                                .catch(err => HTTP.handleError(res, err));
-
-                        let commonRooms = findCommonRooms(rooms, loggedInUserId, userId);
-                        if (!commonRooms || commonRooms.length === 0)
-                            return aaddNewChatRoom(userId, loggedInUserId)
-                                .then(newRoom => HTTP.success(res, newRoom))
-                                .catch(err => HTTP.handleError(res, err));
-
-                        let query = commonRoomFilterQuery(commonRooms);
-                        CHATROOM.aggregate([query])
-                            .then(allCommonRoomUsers => {
-
-                                const allCommonRoomUsersByRoomKey = allCommonRoomUsers
-                                    .reduce((roomArr, room) => {
-                                        if (!roomArr[room.roomKey]) roomArr[room.roomKey] = [];
-                                        roomArr[room.roomKey].push(room);
-                                        return roomArr;
-                                    }, {});
-                                const allCommonRoomUsersByRoomKeyArr = Object.keys(allCommonRoomUsersByRoomKey).map(roomkey => allCommonRoomUsersByRoomKey[roomkey]);
-                                const personalRoom = allCommonRoomUsersByRoomKeyArr.find(x => x.length === 2)?.find(r => r.user.equals(loggedInUserId));
-
-                                if (!personalRoom)
-                                    return addNewChatRoom(userId, loggedInUserId)
-                                        .then(newRoom => HTTP.success(res, newRoom))
-                                        .catch(err => HTTP.handleError(res, err));
-
-                                    return HTTP.success(res, personalRoom);
-                            })
-                            .catch(err => HTTP.handleError(res, err));
-                    })
-                    .catch(err => HTTP.handleError(res, err));
+        getUserRoom(userId, loggedInUserId)
+            .then(newRoom => {
+                if (!newRoom) return HTTP.error(res, 'Cannot find chat room with selected user.');
+                return HTTP.success(res, newRoom);
             })
             .catch(err => HTTP.handleError(res, err));
 
@@ -330,20 +288,6 @@ function findCommonRooms(rooms, userId1, userId2) {
     let user1Rooms = rooms.filter(r => r.user.equals(userId1));
     let user2Rooms = rooms.filter(r => r.user.equals(userId2));
     return user1Rooms.filter(r => user2Rooms.some(ur => ur.roomKey === r.roomKey));
-}
-
-function addRoomAndSendMessage(userId1, loggedInUserId, productId, message) {
-    return new Promise((resolve, reject) => {
-        addNewChatRoom(userId1, loggedInUserId)
-            .then(room => {
-                postProductMessage(room, productId, message)
-                    .then(newMessage => {
-                        resolve(newMessage)
-                    })
-                    .catch(err => reject(err));
-            })
-            .catch(err => reject(err));
-    })
 }
 
 function addNewChatRoom(userId1, loggedInUserId) {
@@ -385,6 +329,73 @@ function postProductMessage(room, productId, message) {
                 if (!newMessage) return reject('Sharing product failed.');
 
                 return resolve(newMessage);
+            })
+            .catch(err => reject(err));
+    });
+}
+
+function postCatalogMessage(room, catalogId, message) {
+    let msgPayload = {
+        room: room._id,
+        roomKey: room.roomKey,
+        message: message,
+        catalog: catalogId,
+        type: HELPER.messageType.internalCatalog
+    }
+    return new Promise((resolve, reject) => {
+        CHATROOMMESSAGE.create(msgPayload)
+            .then(newMessage => {
+                if (!newMessage) return reject('Sharing product failed.');
+
+                return resolve(newMessage);
+            })
+            .catch(err => reject(err));
+    });
+}
+
+function getUserRoom(userId, loggedInUserId) {
+    return new Promise((resolve, reject) => {
+        USER.findById(userId)
+            .then(user => {
+                if (!user) return reject('Cannot find the user selected to share with.');
+
+                CHATROOM.find({ $or: [{ user: userId }, { user: loggedInUserId }] })
+                    .then(rooms => {
+
+                        if (!rooms || rooms.length === 0)
+                            return addNewChatRoom(userId, loggedInUserId)
+                                .then(newRoom => resolve(newRoom))
+                                .catch(err => reject(err));
+
+                        let commonRooms = findCommonRooms(rooms, loggedInUserId, userId);
+                        if (!commonRooms || commonRooms.length === 0)
+                            return addNewChatRoom(userId, loggedInUserId)
+                                .then(newRoom => resolve(newRoom))
+                                .catch(err => reject(err));
+
+                        let query = commonRoomFilterQuery(commonRooms);
+                        CHATROOM.aggregate([query])
+                            .then(allCommonRoomUsers => {
+
+                                const allCommonRoomUsersByRoomKey = allCommonRoomUsers
+                                    .reduce((roomArr, room) => {
+                                        if (!roomArr[room.roomKey]) roomArr[room.roomKey] = [];
+                                        roomArr[room.roomKey].push(room);
+                                        return roomArr;
+                                    }, {});
+                                const allCommonRoomUsersByRoomKeyArr = Object.keys(allCommonRoomUsersByRoomKey).map(roomkey => allCommonRoomUsersByRoomKey[roomkey]);
+                                const personalRoom = allCommonRoomUsersByRoomKeyArr.find(x => x.length === 2)?.find(r => r.user.equals(loggedInUserId));
+
+                                if (!personalRoom)
+                                    return addNewChatRoom(userId, loggedInUserId)
+                                        .then(newRoom => resolve(newRoom))
+                                        .catch(err => reject(err));
+
+                                return resolve(personalRoom);
+                            })
+                            .catch(err => reject(err));
+                    })
+                    .catch(err => reject(err));
             })
             .catch(err => reject(err));
     });
