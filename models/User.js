@@ -1,4 +1,5 @@
 const MONGOOSE = require('mongoose');
+const HELPER = require('../utilities/helper');
 
 const ENCRYPTION = require('../utilities/encryption');
 const STRING = MONGOOSE.Schema.Types.String;
@@ -48,6 +49,7 @@ USER_SCHEMA.index({
     contact1: 'text',
     contact2: 'text'
 });
+
 
 const USER = MONGOOSE.model('User', USER_SCHEMA);
 

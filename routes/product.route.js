@@ -32,7 +32,6 @@ module.exports = (APP) => {
 
     // PRODUCT SPECIFICATION
     APP.get('/specs/product/:productId', PRODUCTSPECS_CONTROLLER.getProductSpecs);
-    APP.get('/specs/category/:category', PRODUCTSPECS_CONTROLLER.getCategoriesSpecs);
     APP.post('/specs/:productId', PRODUCTSPECS_CONTROLLER.add);
     APP.put('/specs/:productspecId', PRODUCTSPECS_CONTROLLER.edit);
     APP.delete('/specs/:productspecId', PRODUCTSPECS_CONTROLLER.delete);

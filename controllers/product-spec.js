@@ -17,18 +17,6 @@ module.exports = {
             .catch(err => HTTP.handleError(res, err));
     },
 
-    getCategoriesSpecs: (req, res) => {
-        var category_regexp = { $regex: '^' + req.params.category };
-
-        PRODUCTSPEC.find({ category: category_regexp })
-            .then(specs => {
-                if (!specs) return HTTP.success(res, []);
-
-                return HTTP.success(res, specs);
-            })
-            .catch(err => HTTP.handleError(res, err));
-    },
-
     add: (req, res) => {
         let productId = req.params.productId;
         let spec = req.body;

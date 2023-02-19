@@ -56,7 +56,14 @@ module.exports = {
             from: 'FirstBook_ITTeam@gmail.com',  // sender address
             to: toEmail,   // list of receivers
             subject: 'Password Recovery',
-            html: '<b>' + OTP  + '</b> is your OTP to reset your password.'
+            html: '<b>' + OTP + '</b> is your OTP to reset your password.'
         }
+    },
+
+    getStandardSearchCollation() {
+        return {
+            'locale': 'en', // use English as the language
+            'strength': 2, //  ignore case and diacritics, such as accents
+        };
     }
 };
