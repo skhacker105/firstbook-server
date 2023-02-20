@@ -1,10 +1,50 @@
 const CATALOG = require('mongoose').model('Catalog');
 const HELPER = require('../utilities/helper');
 const HTTP = require('../utilities/http');
+const DOWNLOADER = require('../utilities/download');
 
 const PAGE_LIMIT = 15;
+const excelBaseHeaders = [
+    {
+        header: 'Product Id',
+        key: '_id'
+    }, {
+        header: 'Product Name',
+        key: 'name'
+    }, {
+        header: 'Generic Cost',
+        key: 'cost'
+    }
+]
 
 module.exports = {
+
+    downloadCatalAsExcel: (req, res) => {
+        let catalogId = req.params.catalogId;
+
+        CATALOG.findById(catalogId)
+            .populate({
+                path: 'products',
+                populate: {
+                    path: 'product'
+                }
+            })
+            .then(catalog => {
+                if (!catalog) return HTTP.error(res, 'There is no catalog with the given id in our database.');
+
+
+                const excelFileWriter = DOWNLOADER.createExcelFile(catalog.products, excelBaseHeaders);
+                res.setHeader(
+                    "Content-Type",
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                );
+                return excelFileWriter.write(res)
+                    .then(function () {
+                        res.status(200).end();
+                    });
+            })
+            .catch(err => HTTP.handleError(res, err));
+    },
 
     getSingle: (req, res) => {
         let catalogId = req.params.catalogId;
