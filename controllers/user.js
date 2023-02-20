@@ -199,7 +199,6 @@ module.exports = {
         let username = req.params.username;
 
         USER.findOne({ username: username })
-            .populate('favoriteBooks')
             .populate('favoriteContacts')
             .then((user) => {
                 if (!user) {
@@ -219,7 +218,6 @@ module.exports = {
                     contact2: user.contact2,
                     address: user.address,
                     commentsCount: user.commentsCount,
-                    favoriteBooks: user.favoriteBooks,
                     favoriteContacts: user.favoriteContacts,
                     isCommentsBlocked: user.isCommentsBlocked
                 };
