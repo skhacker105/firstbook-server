@@ -1,19 +1,24 @@
 const CATALOG = require('mongoose').model('Catalog');
+const CONTACT = require('mongoose').model('Contact');
 const HELPER = require('../utilities/helper');
 const HTTP = require('../utilities/http');
 const DOWNLOADER = require('../utilities/download');
+const CONSTANTS = require('../utilities/contants');
 
 const PAGE_LIMIT = 15;
 const excelBaseHeaders = [
     {
         header: 'Product Id',
-        key: '_id'
+        key: '_id',
+        hidden: true
     }, {
         header: 'Product Name',
-        key: 'name'
+        key: 'name',
+        width: 50
     }, {
         header: 'Generic Cost',
-        key: 'cost'
+        key: 'cost',
+        width: 22
     }
 ]
 
@@ -21,6 +26,7 @@ module.exports = {
 
     downloadCatalAsExcel: (req, res) => {
         let catalogId = req.params.catalogId;
+        let loggedInUserId = HELPER.getAuthUserId(req)
 
         CATALOG.findById(catalogId)
             .populate({
@@ -32,16 +38,20 @@ module.exports = {
             .then(catalog => {
                 if (!catalog) return HTTP.error(res, 'There is no catalog with the given id in our database.');
 
+                // Find Logged in User client contacts
+                CONTACT.find({ createdBy: loggedInUserId, type: CONSTANTS.contactTypes.client })
+                    .then(contacts => {
+                        if (!contacts || contacts.length === 0) {
+                            const excelFile = DOWNLOADER.createExcelFile(catalog.products, excelBaseHeaders);
+                            return HTTP.successExcelFile(res, excelFile);
+                        }
 
-                const excelFileWriter = DOWNLOADER.createExcelFile(catalog.products, excelBaseHeaders);
-                res.setHeader(
-                    "Content-Type",
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                );
-                return excelFileWriter.write(res)
-                    .then(function () {
-                        res.status(200).end();
-                    });
+                        const columnsWithClients = excelBaseHeaders.concat(getColumnsFrom(contacts));
+                        const excelFile = DOWNLOADER.createExcelFile(catalog.products, columnsWithClients);
+                        return HTTP.successExcelFile(res, excelFile);
+                    })
+                    .catch(err => HTTP.handleError(res, err));
+
             })
             .catch(err => HTTP.handleError(res, err));
     },
@@ -181,4 +191,23 @@ module.exports = {
                     });
             });
     }
+}
+
+function getColumnsFrom(contacts) {
+    const result = [];
+    contacts.forEach(contact => {
+        result.push({
+            header: contact._id.toString(),
+            key: 'cost',
+            hidden: true,
+            width: contact._id.toString().length
+        });
+        result.push({
+            header: contact.firstName + " " + contact.lastName,
+            key: 'cost',
+            width: (contact.firstName + " " + contact.lastName).length + 10
+        });
+    });
+    // console.log('result = ', result);
+    return result;
 }

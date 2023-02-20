@@ -22,5 +22,16 @@ module.exports = {
         return res.status(200).json({
             message, data
         });
+    },
+
+    successExcelFile(res, fileWritter) {
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        return fileWritter.write(res)
+            .then(function () {
+                res.status(200).end();
+            });
     }
 };

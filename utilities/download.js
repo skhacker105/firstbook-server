@@ -1,33 +1,13 @@
 const EXCEL = require('exceljs');
 
 module.exports = {
-    createExcelFile: (rows, cols) => {
+    createExcelFile: (rows, cols, sheetName = 'Private Sheet') => {
         const workbook = new EXCEL.Workbook();
-        const worksheet = workbook.addWorksheet('ExampleSheet');
-        // add column headers
-        worksheet.columns = cols; //[
-        //     { header: 'Package', key: 'package_name' },
-        //     { header: 'Author', key: 'author_name' }
-        // ];
-
+        const worksheet = workbook.addWorksheet(sheetName);
+        worksheet.columns = cols;
         rows.forEach(row => {
             worksheet.addRow(mapDataToColumns(row, cols));
         });
-        // Add row using key mapping to columns
-        // worksheet.addRow(
-        //     { package_name: "ABC", author_name: "Author 1" },
-        //     { package_name: "XYZ", author_name: "Author 2" }
-        // );
-
-        // // Add rows as Array values
-        // worksheet.addRow(["BCD", "Author Name 3"]);
-
-        // Add rows using both the above of rows
-        // const rows = [
-        //     ["FGH", "Author Name 4"],
-        //     { package_name: "PQR", author_name: "Author 5" }
-        // ];
-        // worksheet.addRows(rows);
 
         workbook.creator = 'FirstBook';
         workbook.lastModifiedBy = 'Bot';
@@ -45,6 +25,8 @@ function mapDataToColumns(data, cols) {
     let result = [];
     cols.forEach(col => {
         if (data[col.key]) result.push(data[col.key]);
+        else if (col.altkey && data[col.altkey]) result.push(data[col.altkey]);
+        else result.push('');
     });
     return result;
 }
