@@ -19,11 +19,9 @@ module.exports = () => {
         console.log('MongoDB is ready!');
     });
 
-    require('../models/Cart');
     require('../models/User');
     require('../models/Role').init();
     require('../models/Receipt');
-    require('../models/Book');
     require('../models/Comment');
     require('../models/Image');
     require('../models/Contact');

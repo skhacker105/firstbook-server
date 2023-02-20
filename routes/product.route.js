@@ -1,6 +1,5 @@
 const AUTH = require('../config/auth');
 const PRODUCT_CONTROLLER = require('../controllers/product');
-const COMMENT_CONTROLLER = require('../controllers/comment');
 const PRODUCTSPECS_CONTROLLER = require('../controllers/product-spec');
 
 module.exports = (APP) => {
@@ -13,7 +12,7 @@ module.exports = (APP) => {
     APP.delete('/product/gallery/:pictureId', PRODUCT_CONTROLLER.deletePictures);
 
     // PRODUCT COMMENTS
-    APP.get('/product/comment/:productId/:skipCount', COMMENT_CONTROLLER.getComments);
+    APP.get('/product/comment/:productId/:skipCount', PRODUCT_CONTROLLER.getComments);
     APP.post('/product/comment/add/:productId', AUTH.isAuth, PRODUCT_CONTROLLER.postComment);
     APP.put('/product/comment/edit/:commentId', AUTH.isAuth, PRODUCT_CONTROLLER.editComment);
     APP.delete('/product/comment/delete/:commentId', AUTH.isAuth, PRODUCT_CONTROLLER.deleteComment);

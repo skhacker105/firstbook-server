@@ -1,7 +1,6 @@
 const MONGOOSE = require('mongoose');
 
 const USER = MONGOOSE.model('User');
-const CART = MONGOOSE.model('Cart');
 const ENCRYPTION = require('../utilities/encryption');
 const STRING = MONGOOSE.Schema.Types.String;
 const OBJECT_ID = MONGOOSE.Schema.Types.ObjectId;
@@ -33,11 +32,6 @@ module.exports.init = () => {
                 USER.create(adminUser).then((user) => {
                     newRole.users.push(user._id);
                     newRole.save();
-
-                    CART.create({ user: user._id }).then((cart) => {
-                        user.cart = cart._id;
-                        user.save();
-                    });
                 });
             });
         }
@@ -59,10 +53,6 @@ module.exports.init = () => {
                 USER.create(newUser).then((nu) => {
                     newRole.users.push(nu._id);
                     newRole.save();
-                    CART.create({ user: nu._id }).then((cart) => {
-                        nu.cart = cart._id;
-                        nu.save();
-                    });
                 });
             });
         }

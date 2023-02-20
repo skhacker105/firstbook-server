@@ -6,7 +6,6 @@ const OBJECT_ID = MONGOOSE.Schema.Types.ObjectId;
 
 const COMMENT_SCHEMA = MONGOOSE.Schema({
     user: { type: OBJECT_ID, ref: 'User' },
-    book: { type: OBJECT_ID, ref: 'Book' },
     product: { type: OBJECT_ID, ref: 'Product' },
     content: { type: STRING, required: true },
     creationDate: { type: DATE, default: Date.now }

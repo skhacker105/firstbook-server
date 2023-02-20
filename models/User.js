@@ -22,7 +22,6 @@ const USER_SCHEMA = MONGOOSE.Schema({
     isCommentsBlocked: { type: BOOLEAN, default: false },
     commentsCount: { type: NUMBER, default: 0 },
     roles: [{ type: OBJECT_ID, ref: 'Role' }],
-    cart: { type: OBJECT_ID, ref: 'Cart' },
     receipts: [{ type: OBJECT_ID, ref: 'Receipt' }],
     favoriteBooks: [{ type: OBJECT_ID, ref: 'Book' }],
     favoriteContacts: [{ type: OBJECT_ID, ref: 'Contact' }],
