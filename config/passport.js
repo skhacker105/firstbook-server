@@ -66,8 +66,7 @@ module.exports = {
             passwordField: 'password',
             session: false
         }, (username, password, done) => {
-            USER.findOne({ $or: [{ username: username }, { email: username }] })
-            .collation({ locale: 'en_US', strength: 2 })
+            USER.findOne({ $or: [{ username: { $regex: new RegExp(username, 'i')} }, { email: { $regex: new RegExp(username, 'i')} }] })
             .then((user) => {
                 if (!user) {
                     return done(null, false);
