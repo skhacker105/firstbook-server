@@ -6,6 +6,11 @@ const NUMBER = MONGOOSE.Schema.Types.Number;
 const OBJECT_ID = MONGOOSE.Schema.Types.ObjectId;
 const BOOLEAN = MONGOOSE.Schema.Types.Boolean;
 
+const PRODUCTCLIENTCOST_SCHEMA = MONGOOSE.Schema({
+    client: { type: OBJECT_ID, ref: 'Contact', required: true },
+    cost: { type: NUMBER, required: true }
+});
+
 const PRODUCT_SCHEMA = MONGOOSE.Schema({
     name: { type: STRING, required: true },
     description: { type: STRING, default: '' },
@@ -21,7 +26,8 @@ const PRODUCT_SCHEMA = MONGOOSE.Schema({
     ratedBy: [{ type: OBJECT_ID, ref: 'User' }],
     comments: [{ type: OBJECT_ID, ref: 'Comment' }],
     purchaseCost: { type: STRING },
-    sellingCost: { type: STRING }
+    sellingCost: { type: STRING },
+    clientCosts: [{ type: PRODUCTCLIENTCOST_SCHEMA }]
 });
 
 PRODUCT_SCHEMA.index({

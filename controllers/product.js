@@ -323,6 +323,12 @@ module.exports = {
 
         PRODUCT.findById(productId)
             .populate('specifications')
+            .populate({
+                path: 'clientCosts',
+                populate: {
+                    path: 'client'
+                }
+            })
             .then((product) => {
                 if (!product) return HTTP.error(res, 'There is no product with the given id in our database.');
 
@@ -351,6 +357,7 @@ module.exports = {
             product.sellingCost = editedProduct.sellingCost
             product.name = editedProduct.name;
             product.description = editedProduct.description;
+            product.clientCosts = editedProduct.clientCosts
             product.save();
 
             return HTTP.success(res, product, 'Product edited successfully.');
