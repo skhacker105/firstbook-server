@@ -24,7 +24,8 @@ function mapDataToColumns(data, cols) {
     if (!cols || !data) return [];
     let result = [];
     cols.forEach(col => {
-        if (data[col.key]) result.push(data[col.key]);
+        if (col.key && data[col.key]) result.push(data[col.key]);
+        else if (col.findFunction && col.findFunction(data)) result.push(col.findFunction(data));
         else if (col.altkey && data[col.altkey]) result.push(data[col.altkey]);
         else result.push('');
     });

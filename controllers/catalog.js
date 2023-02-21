@@ -32,11 +32,18 @@ module.exports = {
             .populate({
                 path: 'products',
                 populate: {
-                    path: 'product'
+                    path: 'product',
+                    populate: {
+                        path: 'clientCosts',
+                        populate: {
+                            path: 'client'
+                        }
+                    }
                 }
             })
             .then(catalog => {
                 if (!catalog) return HTTP.error(res, 'There is no catalog with the given id in our database.');
+
 
                 // Find Logged in User client contacts
                 CONTACT.find({ createdBy: loggedInUserId, type: CONSTANTS.contactTypes.client })
@@ -63,7 +70,13 @@ module.exports = {
             .populate({
                 path: 'products',
                 populate: {
-                    path: 'product'
+                    path: 'product',
+                    populate: {
+                        path: 'clientCosts',
+                        populate: {
+                            path: 'client'
+                        }
+                    }
                 }
             })
             .then((catalog) => {
@@ -198,16 +211,24 @@ function getColumnsFrom(contacts) {
     contacts.forEach(contact => {
         result.push({
             header: contact._id.toString(),
-            key: 'cost',
             hidden: true,
             width: contact._id.toString().length
         });
         result.push({
             header: contact.firstName + " " + contact.lastName,
-            key: 'cost',
+            findFunction: getClientCostFinder(contact),
+            altkey: 'cost',
             width: (contact.firstName + " " + contact.lastName).length + 10
         });
     });
     // console.log('result = ', result);
     return result;
+}
+
+function getClientCostFinder(contact) {
+    return (catproduct) => {
+        return catproduct.product.clientCosts
+        ? catproduct.product.clientCosts.find(cc => cc.client._id.equals(contact._id))?.cost
+        : null;
+    };
 }
