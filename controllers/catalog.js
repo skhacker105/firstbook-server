@@ -30,7 +30,6 @@ module.exports = {
     downloadCatalAsPDF: (req, res) => {
         let catalogId = req.params.catalogId;
         let filterByClientId = req.params.filterByClientId;
-        console.log('filterByClientId = ', filterByClientId);
 
         CATALOG.findById(catalogId)
             .populate({
@@ -59,6 +58,7 @@ module.exports = {
                     .then(records => {
 
                         mapMainImages(catalog, records);
+                        mapOtherImages(catalog, records);
                         PDF_DOWNLOADER.print(req, 'pdfTemplates/catalog.hbs', catalog)
                             .then(file => HTTP.successPDFFile(res, file, catalog.name))
                             .catch(err => HTTP.handleError(res, err));
@@ -259,6 +259,20 @@ function mapMainImages(catalog, images) {
     });
 }
 
+function mapOtherImages(catalog, images) {
+    catalog.products.forEach(cp => {
+        if (cp.product.images) {
+            const imageIds = JSON.parse(JSON.stringify(cp.product.images));
+            let converted = [];
+            imageIds.forEach(imgid => {
+                const foundImage = images.find(img => img._id.equals(imgid))
+                if (foundImage) converted.push(foundImage.image);
+            });
+            cp.product.images = converted;
+        }
+    });
+}
+
 function updateProductCosts(catalog, clientId) {
     if (!clientId) return catalog;
     catalog.products.forEach(cp => {
@@ -273,6 +287,11 @@ function productImagesIds(catalog) {
     let r = [];
     catalog.products.forEach(cp => {
         r.push(cp.product.defaultImage);
+        if (cp.product.images) {
+            cp.product.images.forEach(img => {
+                r.push(img);
+            });
+        }
     });
     return r.length > 0 ? r : [];
 }

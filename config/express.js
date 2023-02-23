@@ -15,6 +15,7 @@ module.exports = (APP) => {
     APP.use(UPLOAD.array()); 
     APP.use(EXPRESS.static('public'));
     APP.use(EXPRESS.urlencoded({ extended: true }));
+    APP.use(EXPRESS.static(__dirname+'/public'));
     APP.use(PASSPORT.initialize());
     PASSPORT.use('local-register', REGISTER_STRATEGY);
     PASSPORT.use('local-login', LOGIN_STRATEGY);
