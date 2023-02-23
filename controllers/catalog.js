@@ -1,12 +1,12 @@
 const CATALOG = require('mongoose').model('Catalog');
 const CONTACT = require('mongoose').model('Contact');
 const IMAGE = require('mongoose').model('Image');
+const PRODUCT = require('mongoose').model('Product');
 const HELPER = require('../utilities/helper');
 const HTTP = require('../utilities/http');
 const EXCEL_DOWNLOADER = require('../downloaders/download-excel');
 const PDF_DOWNLOADER = require('../downloaders/download-pdf');
 const CONSTANTS = require('../utilities/contants');
-const ObjectId = require('mongoose').Types.ObjectId;
 
 const PAGE_LIMIT = 15;
 const excelBaseHeaders = [
@@ -153,6 +153,38 @@ module.exports = {
             catalog.save();
 
             return HTTP.success(res, catalog, 'Catalog edited successfully!');
+        }).catch(err => HTTP.handleError(res, err));
+    },
+
+    updateProductCost: (req, res) => {
+        let catalogId = req.body.catalogId;
+        let catProductId = req.body.catProductId;
+        let clientCostId = req.body.clientCostId;
+        let cost = req.body.cost;
+
+        CATALOG.findById(catalogId).then((catalog) => {
+            if (!catalog) return HTTP.error(res, 'There is no catalog with the given id in our database.');
+
+            const catProduct = catalog.products.find(p => p._id.equals(catProductId));
+            if (!catProduct) return HTTP.error(res, 'Cannot find link between selected subject and catalog.')
+            if (!clientCostId) {
+
+                catProduct.cost = cost;
+                catalog.save();
+                return HTTP.success(res, catalog);
+            }
+
+            PRODUCT.findById(catProduct.product).then((product) => {
+                if (!product) return HTTP.error(res, 'There is no product with the given id in our database.');
+
+                const client = !product.clientCosts ? undefined : product.clientCosts.find(cc => cc._id.equals(clientCostId))
+                if (client) {
+                    client.cost = cost;
+                }
+
+                product.save();
+                return HTTP.success(res, catalog, 'Catalog edited successfully!');
+            });
         }).catch(err => HTTP.handleError(res, err));
     },
 
@@ -312,7 +344,6 @@ function getColumnsFrom(contacts) {
             width: (contact.firstName + " " + contact.lastName).length + 10
         });
     });
-    // console.log('result = ', result);
     return result;
 }
 
