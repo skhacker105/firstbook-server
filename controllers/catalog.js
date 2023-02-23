@@ -44,6 +44,7 @@ module.exports = {
                     }
                 }
             })
+            .populate('createdBy')
             .then(catalog => {
                 if (!catalog) return HTTP.error(req, 'There is no catalog with the given id in our database.');
 

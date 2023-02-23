@@ -12,14 +12,13 @@
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        .header-image {
+        .container {
             width: 100%;
+            height: 100%;
         }
 
-        .name-header {
-            height: 80px;
-            color: white;
-            background-color: #3f51b5;
+        .header-image {
+            width: 100%;
         }
 
         .image-container {
@@ -87,6 +86,42 @@
             margin: auto;
             width: 70%;
         }
+
+        .name-header {
+            color: gray;
+            font-size: smaller !important;
+            font-weight: lighter !important;
+        }
+
+        .name-details {
+            height: 5;
+            vertical-align: top;
+            font-size: smaller !important;
+            font-weight: lighter !important;
+        }
+
+        .name-detail-name {
+            padding: 15px;
+            vertical-align: top;
+            width: 40%;
+            vertical-align: top;
+            font-size: smaller !important;
+            font-weight: lighter !important;
+        }
+
+        .phone {
+            padding: 15px;
+            font-size: smaller !important;
+            font-weight: lighter !important;
+        }
+
+        .address {
+            height: 100%;
+            padding: 15px;
+            vertical-align: top;
+            font-size: 15px !important;
+            font-weight: lighter !important;
+        }
     </style>
 </head>
 
@@ -98,9 +133,24 @@
             </th>
         </tr>
         <tr>
-            <th colspan="2" class="name-header">
-                {{ inputData.name }}
-            </th>
+            <td colspan="2" class="name-header">
+                <table class="container">
+                    <tr class="name-details">
+                        <td class="name-detail-name">
+                            <p align="left" class="address">
+                                <b>&#127970; Address  </b> <br><br>
+                                {{ inputData.createdBy.address }}
+                            </p>
+                        </td>
+                        <td>
+                            <p align="end" class="phone">
+                                +91 {{ inputData.createdBy.contact1 }} &#9742 <br>
+                                {{ inputData.createdBy.email }}<b> &#128231;</b>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
         </tr>
         {{#each inputData.products}}
         <tr>
