@@ -1,9 +1,12 @@
 const CATALOG = require('mongoose').model('Catalog');
 const CONTACT = require('mongoose').model('Contact');
+const IMAGE = require('mongoose').model('Image');
 const HELPER = require('../utilities/helper');
 const HTTP = require('../utilities/http');
-const DOWNLOADER = require('../utilities/download');
+const EXCEL_DOWNLOADER = require('../downloaders/download-excel');
+const PDF_DOWNLOADER = require('../downloaders/download-pdf');
 const CONSTANTS = require('../utilities/contants');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 const PAGE_LIMIT = 15;
 const excelBaseHeaders = [
@@ -23,6 +26,47 @@ const excelBaseHeaders = [
 ]
 
 module.exports = {
+
+    downloadCatalAsPDF: (req, res) => {
+        let catalogId = req.params.catalogId;
+        let filterByClientId = req.params.filterByClientId;
+        console.log('filterByClientId = ', filterByClientId);
+
+        CATALOG.findById(catalogId)
+            .populate({
+                path: 'products',
+                populate: {
+                    path: 'product',
+                    populate: {
+                        path: 'clientCosts',
+                        populate: {
+                            path: 'client'
+                        }
+                    }
+                }
+            })
+            .then(catalog => {
+                if (!catalog) return HTTP.error(req, 'There is no catalog with the given id in our database.');
+
+                updateProductCosts(catalog, filterByClientId);
+                imageIds = productImagesIds(catalog);
+                if (!imageIds || imageIds.length === 0)
+                    PDF_DOWNLOADER.print(req, 'pdfTemplates/catalog.hbs', catalog)
+                        .then(file => HTTP.successPDFFile(res, file, catalog.name))
+                        .catch(err => HTTP.handleError(res, err));
+
+                IMAGE.find({ _id: { $in: imageIds } })
+                    .then(records => {
+
+                        mapMainImages(catalog, records);
+                        PDF_DOWNLOADER.print(req, 'pdfTemplates/catalog.hbs', catalog)
+                            .then(file => HTTP.successPDFFile(res, file, catalog.name))
+                            .catch(err => HTTP.handleError(res, err));
+                    })
+                    .catch(err => HTTP.handleError(res, err));
+            })
+            .catch(err => HTTP.handleError(res, err));
+    },
 
     downloadCatalAsExcel: (req, res) => {
         let catalogId = req.params.catalogId;
@@ -49,12 +93,12 @@ module.exports = {
                 CONTACT.find({ createdBy: loggedInUserId, type: CONSTANTS.contactTypes.client })
                     .then(contacts => {
                         if (!contacts || contacts.length === 0) {
-                            const excelFile = DOWNLOADER.createExcelFile(catalog.products, excelBaseHeaders);
+                            const excelFile = EXCEL_DOWNLOADER.createExcelFile(catalog.products, excelBaseHeaders);
                             return HTTP.successExcelFile(res, excelFile);
                         }
 
                         const columnsWithClients = excelBaseHeaders.concat(getColumnsFrom(contacts));
-                        const excelFile = DOWNLOADER.createExcelFile(catalog.products, columnsWithClients);
+                        const excelFile = EXCEL_DOWNLOADER.createExcelFile(catalog.products, columnsWithClients);
                         return HTTP.successExcelFile(res, excelFile);
                     })
                     .catch(err => HTTP.handleError(res, err));
@@ -206,6 +250,33 @@ module.exports = {
     }
 }
 
+function mapMainImages(catalog, images) {
+    catalog.products.forEach(cp => {
+        const foundImage = images.find(img => img._id.equals(cp.product.defaultImage))
+        if (foundImage) {
+            cp.product.defaultImage = foundImage.image;
+        }
+    });
+}
+
+function updateProductCosts(catalog, clientId) {
+    if (!clientId) return catalog;
+    catalog.products.forEach(cp => {
+        const filteredClient = cp.product.clientCosts.find(cc => cc.client._id.equals(clientId));
+        if (filteredClient) {
+            cp.cost = filteredClient.cost;
+        }
+    });
+}
+
+function productImagesIds(catalog) {
+    let r = [];
+    catalog.products.forEach(cp => {
+        r.push(cp.product.defaultImage);
+    });
+    return r.length > 0 ? r : [];
+}
+
 function getColumnsFrom(contacts) {
     const result = [];
     contacts.forEach(contact => {
@@ -228,7 +299,7 @@ function getColumnsFrom(contacts) {
 function getClientCostFinder(contact) {
     return (catproduct) => {
         return catproduct.product.clientCosts
-        ? catproduct.product.clientCosts.find(cc => cc.client._id.equals(contact._id))?.cost
-        : null;
+            ? catproduct.product.clientCosts.find(cc => cc.client._id.equals(contact._id))?.cost
+            : null;
     };
 }

@@ -33,5 +33,10 @@ module.exports = {
             .then(function () {
                 res.status(200).end();
             });
+    },
+
+    successPDFFile(res, data, name) {
+        res.attachment(name + '.pdf');
+        return res.end(data);
     }
 };
