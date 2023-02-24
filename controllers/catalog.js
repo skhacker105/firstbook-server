@@ -51,7 +51,7 @@ module.exports = {
                 updateProductCosts(catalog, filterByClientId);
                 imageIds = productImagesIds(catalog);
                 if (!imageIds || imageIds.length === 0)
-                    PDF_DOWNLOADER.print(req, 'pdfTemplates/catalog.hbs', catalog)
+                    return PDF_DOWNLOADER.print(req, 'pdfTemplates/catalog.hbs', catalog)
                         .then(file => HTTP.successPDFFile(res, file, catalog.name))
                         .catch(err => HTTP.handleError(res, err, '1'));
 
