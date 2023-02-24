@@ -26,6 +26,7 @@ module.exports = (APP) => {
     APP.get('/product/details/:productId', PRODUCT_CONTROLLER.getSingle);
     APP.post('/product/add', AUTH.isAuth, PRODUCT_CONTROLLER.add);
     APP.post('/product/rate/:productId', AUTH.isAuth, PRODUCT_CONTROLLER.rate);
+    APP.post('/product/addClientCost/:productId', PRODUCT_CONTROLLER.addClientCost);
     APP.put('/product/edit/:productId', AUTH.isAuth, PRODUCT_CONTROLLER.edit);
     APP.delete('/product/delete/:productId', AUTH.isAuth, PRODUCT_CONTROLLER.delete);
 
