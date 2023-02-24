@@ -320,7 +320,7 @@ function updateProductCosts(catalog, clientId) {
 function productImagesIds(catalog) {
     let r = [];
     catalog.products.forEach(cp => {
-        r.push(cp.product.defaultImage);
+        if (cp.product.defaultImage) r.push(cp.product.defaultImage);
         if (cp.product.images) {
             cp.product.images.forEach(img => {
                 if (img) r.push(img);
