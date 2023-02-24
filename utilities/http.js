@@ -1,8 +1,7 @@
 module.exports = {
-    handleError: (res, err, identifier = '') => {
-        console.log(err);
+    handleError: (res, err) => {
         return res.status(400).json({
-            message: 'Something went wrong, please try again ' + identifier + '.'
+            message: 'Something went wrong, please try again.'
         });
     },
 
