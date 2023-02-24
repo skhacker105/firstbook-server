@@ -17,7 +17,12 @@ module.exports = {
                     const html = template({ inputData: context.inputData });
                     const options = {
                         base: `${req.protocol}://${req.get('host')}`,
-                        format: 'A4'
+                        format: 'A4',
+                        childProcessOptions: {
+                            env: {
+                              OPENSSL_CONF: '/dev/null',
+                            }
+                        }
                     }
 
                     console.log('writting file')
