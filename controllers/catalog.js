@@ -53,7 +53,7 @@ module.exports = {
                 if (!imageIds || imageIds.length === 0)
                     PDF_DOWNLOADER.print(req, 'pdfTemplates/catalog.hbs', catalog)
                         .then(file => HTTP.successPDFFile(res, file, catalog.name))
-                        .catch(err => HTTP.handleError(res, err));
+                        .catch(err => HTTP.handleError(res, err, '1'));
 
                 IMAGE.find({ _id: { $in: imageIds } })
                     .then(records => {
@@ -62,11 +62,11 @@ module.exports = {
                         mapOtherImages(catalog, records);
                         PDF_DOWNLOADER.print(req, 'pdfTemplates/catalog.hbs', catalog)
                             .then(file => HTTP.successPDFFile(res, file, catalog.name))
-                            .catch(err => HTTP.handleError(res, err));
+                            .catch(err => HTTP.handleError(res, err, '2'));
                     })
-                    .catch(err => HTTP.handleError(res, err));
+                    .catch(err => HTTP.handleError(res, err, '3'));
             })
-            .catch(err => HTTP.handleError(res, err));
+            .catch(err => HTTP.handleError(res, err, '4'));
     },
 
     downloadCatalAsExcel: (req, res) => {
