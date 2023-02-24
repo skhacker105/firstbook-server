@@ -61,6 +61,7 @@ module.exports = {
 
                         mapMainImages(catalog, records);
                         mapOtherImages(catalog, records);
+                        console.log('records = ', records);
                         PDF_DOWNLOADER.print(req, 'pdfTemplates/catalog.hbs', catalog)
                             .then(file => HTTP.successPDFFile(res, file, catalog.name))
                             .catch(err => HTTP.handleError(res, err, '2'));
@@ -327,7 +328,6 @@ function productImagesIds(catalog) {
             });
         }
     });
-    console.log('r = ', r)
     return r.length > 0 ? r : [];
 }
 

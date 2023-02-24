@@ -9,8 +9,10 @@ module.exports = {
             const context = {
                 inputData: JSON.parse(JSON.stringify(inputData))
             };
+            console.log('executing promise`');
             readFile(path, 'utf8')
                 .then(content => {
+                    console.log('content loaded`');
                     const template = hbs.compile(content);
                     const html = template({ inputData: context.inputData });
                     const options = {
@@ -18,6 +20,7 @@ module.exports = {
                         format: 'A4'
                     }
 
+                    console.log('writting file')
                     pdf.create(html, options).toBuffer((err, buffer) => {
                         if (err) reject(err);
                         else resolve(buffer);
