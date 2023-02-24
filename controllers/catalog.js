@@ -55,6 +55,7 @@ module.exports = {
                         .then(file => HTTP.successPDFFile(res, file, catalog.name))
                         .catch(err => HTTP.handleError(res, err, '1'));
 
+                        console.log('imageIds = ', imageIds);
                 IMAGE.find({ _id: { $in: imageIds } })
                     .then(records => {
 
@@ -326,6 +327,7 @@ function productImagesIds(catalog) {
             });
         }
     });
+    console.log('r = ', r)
     return r.length > 0 ? r : [];
 }
 
