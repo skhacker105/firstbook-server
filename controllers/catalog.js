@@ -311,7 +311,7 @@ function mapOtherImages(catalog, images) {
 function updateProductCosts(catalog, clientId) {
     if (!clientId) return catalog;
     catalog.products.forEach(cp => {
-        const filteredClient = cp.product.clientCosts.find(cc => cc.client._id.equals(clientId));
+        const filteredClient = cp.product.clientCosts.find(cc => cc.client?._id.equals(clientId));
         if (filteredClient) {
             cp.cost = filteredClient.cost;
         }
@@ -352,7 +352,7 @@ function getColumnsFrom(contacts) {
 function getClientCostFinder(contact) {
     return (catproduct) => {
         return catproduct.product.clientCosts
-            ? catproduct.product.clientCosts.find(cc => cc.client._id.equals(contact._id))?.cost
+            ? catproduct.product.clientCosts.find(cc => cc.client?._id.equals(contact._id))?.cost
             : null;
     };
 }

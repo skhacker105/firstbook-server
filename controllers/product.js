@@ -296,7 +296,7 @@ module.exports = {
         PRODUCT.findById(productId).then((product) => {
             if (!product) return HTTP.error(res, 'There is no product with the given id in our database.');
             if (!product.clientCosts) product.clientCosts = [];
-            let dbClient = product.clientCosts.find(cc => cc.client._id === prod_client.client);
+            let dbClient = product.clientCosts.find(cc => cc.client?._id === prod_client.client);
             if (dbClient) return HTTP.error(res, 'Product is already configured')
 
             product.clientCosts.push(prod_client);
@@ -312,7 +312,7 @@ module.exports = {
                         .then(newproduct => {
                             if (!newproduct) return HTTP.error('Client added but failed to retrieve. PLease refresh to resolve this issue.')
 
-                            let addedClient = newproduct.clientCosts.find(cc => cc.client._id.equals(prod_client.client));
+                            let addedClient = newproduct.clientCosts.find(cc => cc.client?._id.equals(prod_client.client));
                             return HTTP.success(res, addedClient, 'Product configured with new client successfully.');
                         })
                 })
