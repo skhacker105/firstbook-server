@@ -48,6 +48,7 @@ module.exports = {
             .then(catalog => {
                 if (!catalog) return HTTP.error(req, 'There is no catalog with the given id in our database.');
 
+                catalog.products = catalog.products.filter(p => !p.product.disabled)
                 updateProductCosts(catalog, filterByClientId);
                 imageIds = productImagesIds(catalog);
                 if (!imageIds || imageIds.length === 0)
@@ -89,7 +90,7 @@ module.exports = {
             .then(catalog => {
                 if (!catalog) return HTTP.error(res, 'There is no catalog with the given id in our database.');
 
-
+                catalog.products = catalog.products.filter(p => !p.product.disabled)
                 // Find Logged in User client contacts
                 CONTACT.find({ createdBy: loggedInUserId, type: CONSTANTS.contactTypes.client })
                     .then(contacts => {
