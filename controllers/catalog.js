@@ -253,6 +253,7 @@ module.exports = {
         if (params.createdBy) {
             searchParams.query['createdBy'] = params.createdBy;
         }
+        searchParams.query['disabled'] = false
 
         CATALOG
             .find(searchParams.query)

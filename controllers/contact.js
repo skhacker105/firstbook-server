@@ -194,6 +194,7 @@ module.exports = {
             searchParams.limit = JSON.parse(params.limit);
         }
         searchParams.query['createdBy'] = HELPER.getAuthUserId(req);
+        searchParams.query['disabled'] = false
 
         CONTACT
             .find(searchParams.query)
