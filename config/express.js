@@ -4,10 +4,10 @@ const LOGGER = require('../middleware/logger');
 const PASSPORT = require('passport');
 const PATH = require('path');
 const MULTER = require('multer');
-const UPLOAD = MULTER();
 const REGISTER_STRATEGY = require('./passport').localRegister();
 const LOGIN_STRATEGY = require('./passport').localLogin();
-const fileSizeLimit = '50mb'
+const fileSizeLimit = '50mb';
+const UPLOAD = MULTER({limits: { fieldSize: 25 * 1024 * 1024 }});
 
 module.exports = (APP) => {
     APP.use(CORS());

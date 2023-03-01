@@ -52,18 +52,20 @@ module.exports = {
                 updateProductCosts(catalog, filterByClientId);
                 imageIds = productImagesIds(catalog);
                 if (!imageIds || imageIds.length === 0)
-                    return PDF_DOWNLOADER.print(req, 'pdfTemplates/catalog.hbs', catalog)
+                    return PDF_DOWNLOADER.print(req, 'pdfTemplates/catalog.hbs', { catalog, bannerImage: null })
                         .then(file => HTTP.successPDFFile(res, file, catalog.name))
                         .catch(err => HTTP.handleError(res, err));
 
                 IMAGE.find({ _id: { $in: imageIds } })
                     .then(records => {
 
+                        bannerImage = records.splice(records.findIndex(img => img._id.equals(catalog.config?.banner)), 1)
+                        bannerImage = bannerImage ? bannerImage[0] : null;
                         mapMainImages(catalog, records);
                         mapOtherImages(catalog, records);
-                        PDF_DOWNLOADER.print(req, 'pdfTemplates/catalog.hbs', catalog)
+                        PDF_DOWNLOADER.print(req, 'pdfTemplates/catalog.hbs', { catalog, bannerImage })
                             .then(file => HTTP.successPDFFile(res, file, catalog.name))
-                            .catch(err => HTTP.handleError(res, err));
+                            .catch(err => HTTP.error(res, 'pdf error', err));
                     })
                     .catch(err => HTTP.handleError(res, err));
             })
@@ -134,11 +136,11 @@ module.exports = {
                     else {
 
                         IMAGE.findByIdAndDelete(prev_banner_id)
-                        .then(deletedImage => {
+                            .then(deletedImage => {
 
-                            return HTTP.success(res, true, 'Catalog image updated successfully.');
-                        })
-                        .catch(err => HTTP.handleError(res, err));
+                                return HTTP.success(res, true, 'Catalog image updated successfully.');
+                            })
+                            .catch(err => HTTP.handleError(res, err));
                     }
                 } else return HTTP.error(res, 'No config updated. Something went wrong', false);
             }).catch(err => HTTP.handleError(res, err));
@@ -379,6 +381,7 @@ function productImagesIds(catalog) {
             });
         }
     });
+    if (catalog.config?.banner) r.push(catalog.config?.banner);
     return r.length > 0 ? r : [];
 }
 

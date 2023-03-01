@@ -17,6 +17,10 @@
             height: 100%;
         }
 
+        .header {
+            height: 1px;
+        }
+
         .header-image {
             width: 100%;
         }
@@ -127,11 +131,20 @@
 
 <body>
     <table class="container">
-        <tr>
+        {{#if inputData.catalog.config.useBanner}}
+        <tr class="">
+            {{#if inputData.bannerImage}}
+            <th colspan="2">
+                <img src="{{inputData.bannerImage.image}}" class="header-image">
+            </th>
+            {{else}}
             <th colspan="2">
                 <img src="images/banner.png" class="header-image">
             </th>
+            {{/if}}
         </tr>
+        {{/if}}
+        {{#if inputData.catalog.config.useTitleBar}}
         <tr>
             <td colspan="2" class="name-header">
                 <table class="container">
@@ -139,20 +152,21 @@
                         <td class="name-detail-name">
                             <p align="left" class="address">
                                 <b>&#127970; Address  </b> <br><br>
-                                {{ inputData.createdBy.address }}
+                                {{ inputData.catalog.config.address }}
                             </p>
                         </td>
                         <td>
                             <p align="end" class="phone">
-                                +91 {{ inputData.createdBy.contact1 }} &#9742 <br>
-                                {{ inputData.createdBy.email }}<b> &#128231;</b>
+                                +91 {{ inputData.catalog.config.contact }} &#9742 <br>
+                                {{ inputData.catalog.config.email }}<b> &#128231;</b>
                             </p>
                         </td>
                     </tr>
                 </table>
             </td>
         </tr>
-        {{#each inputData.products}}
+        {{/if}}
+        {{#each inputData.catalog.products}}
         <tr>
             <td colspan="2" class="product-header">
 
