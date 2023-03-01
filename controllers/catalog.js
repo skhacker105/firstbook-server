@@ -109,6 +109,51 @@ module.exports = {
             .catch(err => HTTP.handleError(res, err));
     },
 
+    updateCatalogBanner: (req, res) => {
+        let catalogId = req.params.catalogId;
+        const image = req.body.image;
+
+        CATALOG.findById(catalogId).then(catalog => {
+            if (!catalog) return HTTP.error(res, 'There is no catalog with the given id in our database.', false);
+            let resource = {
+                resourceType: 'catalog',
+                catalogId: catalogId,
+                image: image,
+                createdBy: HELPER.getAuthUserId(req)
+            }
+
+            IMAGE.create(resource).then((newImage) => {
+                if (!newImage) return HTTP.error(res, 'Catalog banner did not save. Something went wrong.', false);
+
+                if (catalog.config) {
+
+                    const prev_banner_id = catalog.config.banner;
+                    catalog.config.banner = newImage._id
+                    catalog.save();
+                    if (!prev_banner_id) return HTTP.success(res, true, 'Catalog image updated successfully.');
+                    else {
+
+                        IMAGE.findByIdAndDelete(prev_banner_id)
+                        .then(deletedImage => {
+
+                            return HTTP.success(res, true, 'Catalog image updated successfully.');
+                        })
+                        .catch(err => HTTP.handleError(res, err));
+                    }
+                } else return HTTP.error(res, 'No config updated. Something went wrong', false);
+            }).catch(err => HTTP.handleError(res, err));
+        });
+    },
+
+    getCatalogBanner: (req, res) => {
+        let bannerId = req.params.bannerId;
+        IMAGE.findById(bannerId).then(banner => {
+            if (!banner) return HTTP.error(res, 'There is no banner with the given id in our database.');
+
+            return HTTP.success(res, banner);
+        });
+    },
+
     getSingle: (req, res) => {
         let catalogId = req.params.catalogId;
 
@@ -151,6 +196,12 @@ module.exports = {
 
             catalog.name = editedCatalog.name;
             catalog.products = editedCatalog.products;
+            if (!catalog.config) catalog.config = {};
+            catalog.config.useBanner = editedCatalog.config.useBanner;
+            catalog.config.useTitleBar = editedCatalog.config.useTitleBar;
+            catalog.config.address = editedCatalog.config.address;
+            catalog.config.contact = editedCatalog.config.contact;
+            catalog.config.email = editedCatalog.config.email;
             catalog.save();
 
             return HTTP.success(res, catalog, 'Catalog edited successfully!');

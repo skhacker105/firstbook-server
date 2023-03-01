@@ -7,6 +7,7 @@ const MULTER = require('multer');
 const UPLOAD = MULTER();
 const REGISTER_STRATEGY = require('./passport').localRegister();
 const LOGIN_STRATEGY = require('./passport').localLogin();
+const fileSizeLimit = '50mb'
 
 module.exports = (APP) => {
     APP.use(CORS());
@@ -14,7 +15,8 @@ module.exports = (APP) => {
     APP.use(EXPRESS.json());
     APP.use(UPLOAD.array()); 
     APP.use(EXPRESS.static('public'));
-    APP.use(EXPRESS.urlencoded({ extended: true }));
+    APP.use(EXPRESS.json({limit: fileSizeLimit}));
+    APP.use(EXPRESS.urlencoded({ extended: true, limit: fileSizeLimit }));
     APP.use(EXPRESS.static(__dirname+'/public'));
     APP.use(PASSPORT.initialize());
     PASSPORT.use('local-register', REGISTER_STRATEGY);
