@@ -14,7 +14,10 @@ function generateToken(userInfo) {
         avatar: userInfo.avatar,
         isCommentsBlocked: userInfo.isCommentsBlocked,
         isAdmin: userInfo.isAdmin,
-        roles: userInfo.roles
+        roles: userInfo.roles,
+        address: userInfo.address,
+        contact1: userInfo.contact1,
+        contact2: userInfo.contact2
     };
     const PAYLOAD = { sub: USER };
 
