@@ -12,7 +12,7 @@ module.exports = {
         console.log(userId)
 
         TEAM.find({ "members.user": userId })
-            // .populate('User')
+            .populate('members.user')
             .then((team) => {
                 return HTTP.success(res, team);
             })
