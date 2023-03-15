@@ -8,7 +8,8 @@ const BOOLEAN = MONGOOSE.Schema.Types.Boolean;
 
 const ORDER_ADDRESS_SCHEMA = MONGOOSE.Schema({
     address: { type: STRING, required: true },
-    contact: { type: STRING, required: true }
+    contact: { type: STRING, required: true },
+    name: { type: STRING, required: true }
 });
 
 const ORDER_STATUS_SCHEMA = MONGOOSE.Schema({
