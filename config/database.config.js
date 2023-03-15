@@ -33,4 +33,5 @@ module.exports = () => {
     require('../models/Order');
     require('../models/OrderProduct');
     require('../models/Payment');
+    require('../models/Team');
 };

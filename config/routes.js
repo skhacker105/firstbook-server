@@ -12,6 +12,7 @@ module.exports = (APP) => {
     require('../routes/catalog.route')(APP);
     require('../routes/cahtroom.route')(APP);
     require('../routes/order.route')(APP);
+    require('../routes/team.route')(APP);
 
 
     APP.all('*', ERROR_CONTROLLER.error);
