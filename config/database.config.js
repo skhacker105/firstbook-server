@@ -30,4 +30,7 @@ module.exports = () => {
     require('../models/ChatRoom');
     require('../models/ChatRoomMessage');
     require('../models/Catalog');
+    require('../models/Order');
+    require('../models/OrderProduct');
+    require('../models/Payment');
 };
